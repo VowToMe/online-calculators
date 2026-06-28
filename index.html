@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>在线计算器 - 年龄计算器/日期计算/BMI/贷款计算等实用工具</title>
+<meta name="description" content="免费在线计算器集合，包括年龄计算器、日期计算器、BMI计算、贷款计算器、单位换算等实用工具。">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://VowToMe.github.io/online-calculators/">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#f0f4f8;color:#1a202c;line-height:1.6}
+.container{max-width:860px;margin:0 auto;padding:0 20px}
+header{background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;padding:32px 0 24px;text-align:center;box-shadow:0 4px 20px rgba(124,58,237,.3)}
+header h1{font-size:1.8rem;font-weight:700}
+header p{margin-top:6px;opacity:.85}
+.calc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;padding:24px 0}
+.calc-card{background:#fff;border-radius:12px;padding:18px 16px;cursor:pointer;border:2px solid #e2e8f0;transition:all .2s;text-align:center}
+.calc-card:hover{border-color:#a78bfa;transform:translateY(-2px);box-shadow:0 6px 16px rgba(124,58,237,.1)}
+.calc-card.active{border-color:#7c3aed;background:#f5f3ff}
+.calc-card .icon{font-size:1.8rem;margin-bottom:6px}
+.calc-card .name{font-size:.92rem;font-weight:600}
+.panel{display:none;background:#fff;border-radius:16px;padding:24px 28px;margin-bottom:24px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.panel.show{display:block}
+.panel h2{font-size:1.15rem;color:#7c3aed;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:.85rem;font-weight:600;color:#374151;margin-bottom:3px}
+.form-group input,.form-group select{width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:.9rem}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+.btn{padding:9px 22px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:#7c3aed;color:#fff}
+.btn-primary:hover{background:#6d28d9;transform:translateY(-1px);box-shadow:0 4px 12px rgba(124,58,237,.35)}
+.btn-secondary{background:#f1f5f9;color:#334155}
+.result-box{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;padding:14px 16px;margin-top:12px;display:none;font-size:.92rem}
+.result-box.show{display:block}
+.result-box .big{font-size:1.5rem;font-weight:700;color:#7c3aed}
+.support{background:#fff;border-radius:16px;padding:28px;margin-bottom:24px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+footer{text-align:center;padding:20px 0;font-size:.82rem;color:#94a3b8;border-top:1px solid #e2e8f0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#1e293b;color:#fff;padding:10px 22px;border-radius:10px;font-size:.88rem;transition:transform .3s;z-index:999}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:14px}
+.links a{color:#7c3aed;font-size:.85rem}
+@media(max-width:600px){.calc-grid{grid-template-columns:1fr 1fr}.panel{padding:16px}}
+</style>
+</head>
+<body>
+
+<header><div class="container">
+<h1>在线计算器</h1>
+<p>免费在线使用 • 浏览器内计算 • 即开即用</p>
+</div></header>
+
+<main class="container">
+<div class="calc-grid">
+<div class="calc-card active" data-t="age" onclick="switchTo('age')"><div class="icon">🎂</div><div class="name">年龄计算器</div></div>
+<div class="calc-card" data-t="date" onclick="switchTo('date')"><div class="icon">📅</div><div class="name">日期计算器</div></div>
+<div class="calc-card" data-t="bmi" onclick="switchTo('bmi')"><div class="icon">⚖️</div><div class="name">BMI 计算</div></div>
+<div class="calc-card" data-t="loan" onclick="switchTo('loan')"><div class="icon">💰</div><div class="name">贷款计算器</div></div>
+<div class="calc-card" data-t="unit" onclick="switchTo('unit')"><div class="icon">📐</div><div class="name">单位换算</div></div>
+<div class="calc-card" data-t="percent" onclick="switchTo('percent')"><div class="icon">%</div><div class="name">百分比计算</div></div>
+</div>
+
+<!-- 年龄计算 -->
+<div class="panel show" id="p-age"><h2>🎂 年龄计算器</h2>
+<div class="form-group"><label>出生日期</label><input type="date" id="ageBirth" /></div>
+<div class="form-group"><label>到哪一天</label><input type="date" id="ageTo" /></div>
+<button class="btn btn-primary" onclick="calcAge()">计算年龄</button>
+<div class="result-box" id="ageResult"></div></div>
+
+<!-- 日期计算 -->
+<div class="panel" id="p-date"><h2>📅 日期计算器</h2>
+<div class="form-group"><label>开始日期</label><input type="date" id="dateStart" /></div>
+<div class="form-group"><label>加减天数</label><input type="number" id="dateDays" placeholder="正数=往后, 负数=往前" /></div>
+<button class="btn btn-primary" onclick="calcDate()">计算</button>
+<div class="result-box" id="dateResult"></div></div>
+
+<!-- BMI -->
+<div class="panel" id="p-bmi"><h2>⚖️ BMI 计算器</h2>
+<div class="form-group"><label>身高 (cm)</label><input type="number" id="bmiHeight" placeholder="170" /></div>
+<div class="form-group"><label>体重 (kg)</label><input type="number" id="bmiWeight" placeholder="65" /></div>
+<button class="btn btn-primary" onclick="calcBMI()">计算 BMI</button>
+<div class="result-box" id="bmiResult"></div></div>
+
+<!-- 贷款 -->
+<div class="panel" id="p-loan"><h2>💰 贷款计算器</h2>
+<div class="form-group"><label>贷款金额 (元)</label><input type="number" id="loanAmount" placeholder="100000" /></div>
+<div class="form-group"><label>年利率 (%)</label><input type="number" id="loanRate" placeholder="4.5" step="0.1" /></div>
+<div class="form-group"><label>贷款期限 (月)</label><input type="number" id="loanTerm" placeholder="360" /></div>
+<button class="btn btn-primary" onclick="calcLoan()">计算月供</button>
+<div class="result-box" id="loanResult"></div></div>
+
+<!-- 单位换算 -->
+<div class="panel" id="p-unit"><h2>📐 单位换算</h2>
+<div class="form-group"><label>换算类型</label><select id="unitType" onchange="updateUnitOptions()">
+<option value="length">长度</option><option value="weight">重量</option><option value="temp">温度</option>
+</select></div>
+<div class="form-group"><label>值</label><input type="number" id="unitValue" placeholder="输入数值" /></div>
+<div class="form-group"><label>从</label><select id="unitFrom"></select></div>
+<div class="form-group"><label>到</label><select id="unitTo"></select></div>
+<button class="btn btn-primary" onclick="calcUnit()">换算</button>
+<div class="result-box" id="unitResult"></div></div>
+
+<!-- 百分比 -->
+<div class="panel" id="p-percent"><h2>% 百分比计算</h2>
+<div class="form-group"><label>数值 A</label><input type="number" id="pctA" placeholder="100" /></div>
+<div class="form-group"><label>数值 B</label><input type="number" id="pctB" placeholder="200" /></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;">
+<button class="btn btn-primary" onclick="pctOf()">A 占 B 的百分比</button>
+<button class="btn btn-secondary" onclick="pctChange()">A 到 B 的变化百分比</button>
+</div>
+<div class="result-box" id="pctResult"></div></div>
+
+<div class="links">
+<a href="https://VowToMe.github.io/legal-doc-generator/">⚖️ 法律文书生成器</a>
+<a href="https://VowToMe.github.io/free-file-tools/">🔧 在线工具箱</a>
+<a href="https://VowToMe.github.io/paper-helper/">📄 论文辅助工具</a>
+</div>
+
+<div class="support"><h3>支持作者</h3><p>工具对你有用？欢迎支持</p><p style="color:#94a3b8;">⏳ 微信收款码待配置</p></div>
+</main>
+<footer><p>在线计算器 &copy; 2026 — 计算结果仅供参考</p></footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const day0=()=>{const d=new Date();return d.toISOString().split('T')[0]};
+document.addEventListener('DOMContentLoaded',()=>{
+document.getElementById('ageBirth').value='2000-01-01';document.getElementById('ageTo').value=day0();
+document.getElementById('dateStart').value=day0();updateUnitOptions();
+});
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+function switchTo(t){document.querySelectorAll('.panel').forEach(e=>e.classList.remove('show'));document.querySelectorAll('.calc-card').forEach(e=>e.classList.remove('active'));document.getElementById('p-'+t).classList.add('show');document.querySelector('.calc-card[data-t="'+t+'"]').classList.add('show');}
+function $(id){return document.getElementById(id)}
+function calcAge(){const b=new Date($('ageBirth').value),t=new Date($('ageTo').value);if(isNaN(b)||isNaN(t)){toast('请选择有效日期');return}
+let y=t.getFullYear()-b.getFullYear(),m=t.getMonth()-b.getMonth(),d=t.getDate()-b.getDate();
+if(d<0){m--;d+=new Date(t.getFullYear(),t.getMonth(),0).getDate()}if(m<0){y--;m+=12}
+showResult('ageResult',`<div class="big">${y} 岁 ${m} 个月 ${d} 天</div><div style="margin-top:6px;color:#64748b;">从 ${b.toLocaleDateString('zh-CN')} 到 ${t.toLocaleDateString('zh-CN')}</div>`);}
+
+function calcDate(){const s=new Date($('dateStart').value),d=parseInt($('dateDays').value);if(isNaN(s)||isNaN(d)){toast('请输入有效值');return}
+const r=new Date(s);r.setDate(r.getDate()+d);showResult('dateResult',`<div class="big">${r.toLocaleDateString('zh-CN')}</div><div style="color:#64748b;">${d>=0?'往后':'往前'} ${Math.abs(d)} 天</div>`);}
+
+function calcBMI(){const h=parseFloat($('bmiHeight').value)/100,w=parseFloat($('bmiWeight').value);if(!h||!w){toast('请输入身高体重');return}
+const b=(w/(h*h)).toFixed(1);let s=b<18.5?'偏瘦':b<24?'正常':b<28?'超重':'肥胖';showResult('bmiResult',`<div class="big">${b}</div><div>${s}</div>`);}
+
+function calcLoan(){const a=parseFloat($('loanAmount').value),r=parseFloat($('loanRate').value)/100/12,m=parseInt($('loanTerm').value);if(!a||!r||!m){toast('请填写完整');return}
+const p=a*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1),t=p*m;showResult('loanResult',`<div>月供：<span class="big">¥${p.toFixed(2)}</span></div><div>总还款：¥${t.toFixed(2)} | 利息：¥${(t-a).toFixed(2)}</div>`);}
+
+const units={length:{m:[1,'米'],km:[1000,'千米'],cm:[0.01,'厘米'],mm:[0.001,'毫米'],in:[0.0254,'英寸'],ft:[0.3048,'英尺']},weight:{kg:[1,'千克'],g:[0.001,'克'],lb:[0.4536,'磅'],oz:[0.02835,'盎司']},temp:{c:[1,'°C'],f:[null,'°F'],k:[null,'K']}};
+function updateUnitOptions(){const t=$('unitType').value,u=units[t];const uf=$('unitFrom'),ut=$('unitTo');uf.innerHTML='';ut.innerHTML='';
+for(const[k,v]of Object.entries(u)){const o1=document.createElement('option');o1.value=k;o1.textContent=v[1];uf.appendChild(o1);
+const o2=document.createElement('option');o2.value=k;o2.textContent=v[1];ut.appendChild(o2);}ut.value=t==='temp'?'f':'km';}
+
+function calcUnit(){const t=$('unitType').value,v=parseFloat($('unitValue').value),f=$('unitFrom').value,to=$('unitTo').value;if(isNaN(v)){toast('请输入数值');return}
+const u=units[t];let r;if(t==='temp'){let c;if(f==='c')c=v;else if(f==='f')c=(v-32)*5/9;else c=v-273.15;
+if(to==='c')r=c;else if(to==='f')r=c*9/5+32;else r=c+273.15;}else{r=v*u[f][0]/u[to][0];}
+showResult('unitResult',`<div class="big">${v} ${u[f][1]} = ${r.toFixed(4)} ${u[to][1]}</div>`);}
+
+function pctOf(){const a=parseFloat($('pctA').value),b=parseFloat($('pctB').value);if(!b){toast('B 不能为 0');return}
+showResult('pctResult',`<div class="big">${(a/b*100).toFixed(2)}%</div><div>${a} 是 ${b} 的 ${(a/b*100).toFixed(2)}%</div>`);}
+function pctChange(){const a=parseFloat($('pctA').value),b=parseFloat($('pctB').value);if(!a){toast('A 不能为 0');return}
+showResult('pctResult',`<div class="big">${((b-a)/a*100).toFixed(2)}%</div><div>从 ${a} 到 ${b} 变化了 ${((b-a)/a*100).toFixed(2)}%</div>`);}
+
+function showResult(id,html){const e=$(id);e.innerHTML=html;e.classList.add('show');}
+</script>
+</body>
+</html>
